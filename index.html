@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Audit">
+<meta name="theme-color" content="#0f2540">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Audit di Processo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy: #0f2540;
+  --navy-mid: #1a3a5c;
+  --accent: #c0392b;
+  --green: #1a6b3a;
+  --green-bg: #eaf5ee;
+  --green-border: #a3d4b2;
+  --red-bg: #fdf0ef;
+  --red-border: #f0b0a8;
+  --border: #e0e0dc;
+  --surface: #f7f6f3;
+  --card: #ffffff;
+  --text: #1a1a18;
+  --subtext: #6b6b66;
+  --label: #9a9a94;
+}
+html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  background: var(--surface);
+  color: var(--text);
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  padding-bottom: 5rem;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app-header {
+  background: var(--navy);
+  color: #fff;
+  padding: env(safe-area-inset-top, 0px) 1.25rem 0.9rem;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 1rem);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.app-header h1 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1px;
+}
+.app-header .sub {
+  font-size: 10px;
+  opacity: 0.5;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.progress-bar-wrap {
+  background: var(--navy);
+  padding: 0 1.25rem 0.75rem;
+}
+.progress-track { height: 3px; background: rgba(255,255,255,0.15); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; background: #4fc38a; border-radius: 2px; transition: width 0.35s ease; width: 0%; }
+.progress-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.45); margin-top: 3px; }
+
+.wrap { max-width: 680px; margin: 0 auto; padding: 1rem 0.9rem 0; }
+
+.meta-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.1rem;
+  margin-bottom: 1rem;
+}
+.meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+.field-group { display: flex; flex-direction: column; gap: 4px; }
+.field-group label {
+  font-size: 9px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--label);
+  font-family: 'IBM Plex Mono', monospace;
+}
+.field-group input,
+.field-group select {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 11px;
+  font-size: 15px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  background: var(--surface);
+  color: var(--text);
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+.field-group input:focus,
+.field-group select:focus { outline: none; border-color: var(--navy-mid); background: #fff; }
+.select-wrap { position: relative; }
+.select-wrap::after {
+  content: '▾';
+  position: absolute;
+  right: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--subtext);
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.score-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--navy);
+  border-radius: 10px;
+  padding: 0.8rem 1rem;
+  margin-bottom: 1rem;
+  color: #fff;
+}
+.score-main { font-family: 'IBM Plex Mono', monospace; font-size: 20px; font-weight: 500; min-width: 58px; }
+.score-track { flex: 1; height: 4px; background: rgba(255,255,255,0.15); border-radius: 3px; overflow: hidden; }
+.score-fill { height: 100%; border-radius: 3px; transition: width 0.3s, background-color 0.3s; width: 0%; }
+.score-pct { font-family: 'IBM Plex Mono', monospace; font-size: 12px; opacity: 0.6; min-width: 34px; text-align: right; }
+
+.section-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 0.85rem; overflow: hidden; }
+.section-header { background: var(--navy); padding: 0.6rem 1rem; display: flex; align-items: center; }
+.section-tag { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 500; color: #fff; letter-spacing: 0.08em; }
+.section-count { margin-left: auto; font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.4); }
+
+.question-row {
+  padding: 0.9rem 1rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+}
+.question-row:last-child { border-bottom: none; }
+.question-row.answered-ok { background: #f4fbf7; }
+.question-row.answered-ko { background: #fef5f4; }
+
+.q-text { font-size: 14px; line-height: 1.45; color: var(--text); margin-bottom: 9px; }
+
+.btn-group { display: flex; gap: 8px; }
+
+.btn-ok, .btn-ko {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  color: var(--subtext);
+  -webkit-appearance: none;
+  appearance: none;
+}
+.btn-ok.active {
+  background: var(--green-bg);
+  border-color: var(--green);
+  color: var(--green);
+}
+.btn-ko.active {
+  background: var(--red-bg);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.ko-note-wrap { margin-top: 8px; display: none; }
+.ko-note-wrap.visible { display: block; }
+.ko-note-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--accent);
+  font-family: 'IBM Plex Mono', monospace;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.ko-note-label::before {
+  content: '';
+  display: inline-block;
+  width: 5px; height: 5px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+.ko-note-wrap textarea {
+  width: 100%;
+  border: 1px solid var(--red-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 14px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  background: #fff;
+  color: var(--text);
+  resize: none;
+  min-height: 68px;
+  -webkit-appearance: none;
+}
+.ko-note-wrap textarea:focus { outline: none; border-color: var(--accent); }
+.ko-note-wrap textarea::placeholder { color: #c8b8b5; }
+
+.submit-wrap {
+  position: fixed;
+  bottom: 0;
+  left: 0; right: 0;
+  background: rgba(247,246,243,0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 0.75rem 0.9rem;
+  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border);
+  z-index: 50;
+}
+.submit-inner { max-width: 680px; margin: 0 auto; }
+.submit-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--navy);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  font-family: 'IBM Plex Sans', sans-serif;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  -webkit-appearance: none;
+}
+.submit-btn:active { opacity: 0.8; }
+.submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15,37,64,0.6);
+  z-index: 999;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 1rem;
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+}
+.modal-overlay.open { display: flex; }
+.modal { background: var(--card); border-radius: 16px; padding: 1.4rem; width: 100%; max-width: 480px; }
+.modal h2 { font-size: 16px; font-weight: 500; margin-bottom: 0.4rem; }
+.modal-summary {
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 0.8rem 0.9rem;
+  margin: 0.75rem 0 1rem;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--subtext);
+  font-family: 'IBM Plex Mono', monospace;
+}
+.modal-summary strong { color: var(--text); }
+.modal-actions { display: flex; gap: 8px; }
+.modal-btn {
+  flex: 1; padding: 11px;
+  border-radius: 9px;
+  font-size: 14px; font-weight: 500;
+  cursor: pointer;
+  font-family: 'IBM Plex Sans', sans-serif;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+}
+.modal-btn.primary { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+.success-banner {
+  display: none;
+  background: var(--green-bg);
+  border: 1px solid var(--green-border);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 13px;
+  color: var(--green);
+  line-height: 1.5;
+}
+.success-banner.visible { display: block; }
+
+.install-hint {
+  background: #fff8e6;
+  border: 1px solid #f5d78a;
+  border-radius: 10px;
+  padding: 0.8rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 12px;
+  color: #7a5c00;
+  line-height: 1.5;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.install-hint-icon { font-size: 18px; flex-shrink: 0; margin-top: -1px; }
+.install-hint button {
+  margin-top: 6px;
+  font-size: 11px;
+  background: none;
+  border: none;
+  color: #7a5c00;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+@media (max-width: 380px) {
+  .meta-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <h1>Audit di Processo</h1>
+  <div class="sub" id="date-display"></div>
+</div>
+<div class="progress-bar-wrap">
+  <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+  <div class="progress-label" id="progress-label">0 / 0 domande compilate</div>
+</div>
+
+<div class="wrap">
+
+  <div class="install-hint" id="install-hint">
+    <span class="install-hint-icon">📲</span>
+    <div>
+      <strong>Installa come app:</strong> tocca <strong>Condividi</strong> in Safari, poi <strong>"Aggiungi a schermata Home"</strong> per usarla offline come un'app vera.
+      <br><button onclick="document.getElementById('install-hint').style.display='none'">Chiudi</button>
+    </div>
+  </div>
+
+  <div class="meta-card">
+    <div class="meta-grid">
+      <div class="field-group">
+        <label>Compilatore *</label>
+        <input type="text" id="compilatore" placeholder="Nome e cognome" autocomplete="name" />
+      </div>
+      <div class="field-group">
+        <label>Reparto *</label>
+        <div class="select-wrap">
+          <select id="reparto">
+            <option value="">— Seleziona —</option>
+            <option value="Linea 2">Linea 2</option>
+            <option value="Linea 3">Linea 3</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="score-strip">
+    <div class="score-main" id="score-num">0 / 0</div>
+    <div class="score-track"><div class="score-fill" id="score-fill"></div></div>
+    <div class="score-pct" id="score-pct">—</div>
+  </div>
+
+  <div id="form-body"></div>
+  <div class="success-banner" id="success-banner"></div>
+
+</div>
+
+<div class="submit-wrap">
+  <div class="submit-inner">
+    <button class="submit-btn" id="submit-btn" onclick="handleSubmit()">Genera PDF e scarica report</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2>Conferma report</h2>
+    <div class="modal-summary" id="modal-summary"></div>
+    <div class="modal-actions">
+      <button class="modal-btn" onclick="closeModal()">Annulla</button>
+      <button class="modal-btn primary" onclick="confirmSubmit()">Scarica PDF</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var SECTIONS = [
+  { id:'M10', label:'M10', questions:[
+    'Formazione operatore + verifica conoscenza metodo di lavoro',
+    'Esatta compilazione registro carico e scarti',
+    'Verifica cartone perimetrale su cassone frame'
+  ]},
+  { id:'SPC10', label:'SPC10', questions:[
+    'Esatta compilazione registro SPC10 e registro bave',
+    'Presenza tamponi e alesametri'
+  ]},
+  { id:'SPC50A', label:'SPC 50 A', questions:[
+    'Esatta compilazione registro bave SPC50/60'
+  ]},
+  { id:'SPC50B', label:'SPC 50 B', questions:[
+    'Esatta compilazione registro bave SPC50/60'
+  ]},
+  { id:'SPC70', label:'SPC70', questions:[
+    'Esatta compilazione registro SPC70',
+    'Presenza tamponi e alesametri'
+  ]},
+  { id:'OP90', label:'OP90', questions:[
+    'Esatta compilazione registro bave OP90',
+    'Formazione operatore + verifica conoscenza metodo di lavoro'
+  ]},
+  { id:'OP110', label:'OP110 – OP112', questions:[
+    'Funzionamento controlli apertura canali olio index',
+    'Funzionamento controlli apertura canali olio tavola 1',
+    'Presenza calibro a corsoio + comparatore',
+    'Esatta compilazione registro quota tappo/sfera'
+  ]},
+  { id:'OP115', label:'OP 115', questions:[
+    'Funzionamento postazione'
+  ]},
+  { id:'OP116', label:'OP 116', questions:[
+    'Funzionamento postazione'
+  ]},
+  { id:'OP120', label:'OP120', questions:[
+    'Compilazione registro pz scarto PT',
+    'Passaggio pezzi trappola'
+  ]},
+  { id:'M122', label:'M122 / M123', questions:[
+    'Formazione operatore + verifica conoscenza ciclo di controllo + utilizzo tampone VVT',
+    'Compilazione registro ingresso e funzionamento timbro',
+    'Funzionamento monitor output OP115/116 + sistema Matec',
+    'Verifica conoscenza QA ultimi reclami',
+    'Presenza ciclo di controllo e defect book',
+    'Utilizzo del tempo a disposizione per il controllo'
+  ]},
+  { id:'M125', label:'M125', questions:[
+    'Formazione operatore + verifica conoscenza ciclo di controllo',
+    'Compilazione registro ingresso e funzionamento timbro',
+    'Funzionamento monitor per dichiarazione scarti',
+    'Verifica conoscenza QA ultimi reclami',
+    'Presenza ciclo di controllo e defect book',
+    'Utilizzo del tempo a disposizione per il controllo'
+  ]},
+  { id:'FW', label:'Firewall', questions:[
+    'Formazione operatori, funzionamento timbro',
+    'Pulizia banco di controllo',
+    'Conoscenza ed utilizzo ciclo di controllo e defect book + QA',
+    'Utilizzo tampone passa/non passa su fori centraggio frame',
+    'Utilizzo torcia per controllo bave e piano fresato'
+  ]},
+  { id:'SM', label:'Sala Metrologica', questions:[
+    'Tutti i controlli metrologici previsti sono stati eseguiti'
+  ]}
+];
+
+var answers = {};
+var notes = {};
+var TOTAL = 0;
+
+// Build UI
+(function() {
+  var body = document.getElementById('form-body');
+  SECTIONS.forEach(function(sec) {
+    TOTAL += sec.questions.length;
+    var card = document.createElement('div');
+    card.className = 'section-card';
+    var hdr = '<div class="section-header"><span class="section-tag">' + sec.label + '</span><span class="section-count" id="cnt-' + sec.id + '">0 / ' + sec.questions.length + '</span></div>';
+    var rows = '';
+    sec.questions.forEach(function(q, qi) {
+      var k = sec.id + '_' + qi;
+      rows += '<div class="question-row" id="row-' + k + '">' +
+        '<div class="q-text">' + q + '</div>' +
+        '<div class="btn-group">' +
+          '<button class="btn-ok" id="ok-' + k + '" onclick="setAnswer(\'' + k + '\',\'ok\',\'' + sec.id + '\',' + sec.questions.length + ')">OK</button>' +
+          '<button class="btn-ko" id="ko-' + k + '" onclick="setAnswer(\'' + k + '\',\'ko\',\'' + sec.id + '\',' + sec.questions.length + ')">KO</button>' +
+        '</div>' +
+        '<div class="ko-note-wrap" id="note-wrap-' + k + '">' +
+          '<div class="ko-note-label">Motivazione obbligatoria</div>' +
+          '<textarea id="note-' + k + '" placeholder="Descrivi il problema..." oninput="notes[\'' + k + '\']=this.value"></textarea>' +
+        '</div>' +
+      '</div>';
+    });
+    card.innerHTML = hdr + rows;
+    body.appendChild(card);
+  });
+  document.getElementById('progress-label').textContent = '0 / ' + TOTAL + ' domande compilate';
+  document.getElementById('score-num').textContent = '0 / ' + TOTAL;
+})();
+
+document.getElementById('date-display').textContent =
+  new Date().toLocaleDateString('it-IT',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+function setAnswer(key, val, secId, secLen) {
+  answers[key] = val;
+
+  var okBtn = document.getElementById('ok-' + key);
+  var koBtn = document.getElementById('ko-' + key);
+
+  // Reset entrambi, poi attiva il selezionato
+  okBtn.className = 'btn-ok' + (val === 'ok' ? ' active' : '');
+  koBtn.className = 'btn-ko' + (val === 'ko' ? ' active' : '');
+
+  // Colora riga
+  var row = document.getElementById('row-' + key);
+  row.className = 'question-row answered-' + val;
+
+  // Note KO
+  var nw = document.getElementById('note-wrap-' + key);
+  if (val === 'ko') {
+    nw.className = 'ko-note-wrap visible';
+    setTimeout(function(){ document.getElementById('note-' + key).focus(); }, 150);
+  } else {
+    nw.className = 'ko-note-wrap';
+    notes[key] = '';
+  }
+
+  updateScore(secId, secLen);
+}
+
+function updateScore(secId, secLen) {
+  var totalAnswered = Object.keys(answers).length;
+  var totalOk = 0;
+  Object.values(answers).forEach(function(v){ if(v==='ok') totalOk++; });
+  var pct = totalAnswered > 0 ? Math.round(totalOk / TOTAL * 100) : 0;
+
+  document.getElementById('score-num').textContent = totalOk + ' / ' + TOTAL;
+  document.getElementById('score-pct').textContent = totalAnswered > 0 ? pct + '%' : '—';
+  var sf = document.getElementById('score-fill');
+  sf.style.width = pct + '%';
+  sf.style.backgroundColor = pct >= 80 ? '#4fc38a' : pct >= 50 ? '#f0a500' : '#e05c4e';
+
+  var pf = document.getElementById('progress-fill');
+  pf.style.width = Math.round(totalAnswered / TOTAL * 100) + '%';
+  document.getElementById('progress-label').textContent = totalAnswered + ' / ' + TOTAL + ' domande compilate';
+
+  if (secId) {
+    var sa = 0;
+    SECTIONS.forEach(function(sec) {
+      if (sec.id !== secId) return;
+      sec.questions.forEach(function(_, qi){ if(answers[secId+'_'+qi]) sa++; });
+    });
+    document.getElementById('cnt-' + secId).textContent = sa + ' / ' + secLen;
+  }
+}
+
+function handleSubmit() {
+  var comp = document.getElementById('compilatore').value.trim();
+  var rep = document.getElementById('reparto').value;
+  if (!comp || !rep) { alert('Inserisci nome compilatore e reparto.'); return; }
+
+  var missing = 0;
+  SECTIONS.forEach(function(sec){ sec.questions.forEach(function(_, qi){ if(!answers[sec.id+'_'+qi]) missing++; }); });
+  if (missing > 0) { alert('Attenzione: ' + missing + ' domande senza risposta.'); return; }
+
+  var missingNotes = [];
+  SECTIONS.forEach(function(sec){
+    sec.questions.forEach(function(q, qi){
+      var k = sec.id+'_'+qi;
+      if(answers[k]==='ko' && (!notes[k]||!notes[k].trim()))
+        missingNotes.push(sec.label + ': ' + q.substring(0,45) + '…');
+    });
+  });
+  if (missingNotes.length > 0) { alert('Motivazione mancante per:\n\n' + missingNotes.join('\n')); return; }
+
+  var totalOk = Object.values(answers).filter(function(v){return v==='ok';}).length;
+  var totalKo = Object.values(answers).filter(function(v){return v==='ko';}).length;
+  var pct = Math.round(totalOk / TOTAL * 100);
+  var dateStr = new Date().toLocaleDateString('it-IT',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  document.getElementById('modal-summary').innerHTML =
+    '<strong>' + comp + '</strong> — ' + rep + '<br>' +
+    dateStr + '<br><br>' +
+    'OK: <strong>' + totalOk + '</strong> &nbsp;|&nbsp; KO: <strong>' + totalKo + '</strong> &nbsp;|&nbsp; Conformità: <strong>' + pct + '%</strong>';
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+function confirmSubmit() { closeModal(); generatePDF(); }
+
+function generatePDF() {
+  var comp    = document.getElementById('compilatore').value.trim();
+  var rep     = document.getElementById('reparto').value;
+  var dateStr = new Date().toLocaleDateString('it-IT',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  var totalOk = Object.values(answers).filter(function(v){return v==='ok';}).length;
+  var totalKo = Object.values(answers).filter(function(v){return v==='ko';}).length;
+  var pct     = Math.round(totalOk / TOTAL * 100);
+
+  var doc = new jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  var W = 210, M = 14, CW = W - M * 2;
+
+  // Header
+  doc.setFillColor(15,37,64);
+  doc.rect(0,0,W,32,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold'); doc.setFontSize(15);
+  doc.text('AUDIT DI PROCESSO', M, 13);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+  doc.text('Endurance S.p.A.   |   ' + dateStr, M, 20);
+  doc.text('Compilatore: ' + comp + '   |   Reparto: ' + rep, M, 27);
+
+  // Score box
+  var sc = pct>=80?[26,107,58]:pct>=50?[176,109,0]:[192,57,43];
+  doc.setFillColor(sc[0],sc[1],sc[2]);
+  doc.roundedRect(M,36,CW,11,3,3,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold'); doc.setFontSize(10);
+  doc.text('Conformità: ' + totalOk + ' OK / ' + totalKo + ' KO  (' + pct + '%)', M+5, 43.5);
+
+  var y = 53;
+
+  SECTIONS.forEach(function(sec) {
+    if (y > 265) { doc.addPage(); y = 14; }
+
+    doc.setFillColor(224,228,234);
+    doc.rect(M, y, CW, 8, 'F');
+    doc.setTextColor(15,37,64);
+    doc.setFont('helvetica','bold'); doc.setFontSize(9);
+    doc.text(sec.label, M+3, y+5.5);
+
+    var sOk=0, sKo=0;
+    sec.questions.forEach(function(_,qi){
+      if(answers[sec.id+'_'+qi]==='ok') sOk++;
+      else if(answers[sec.id+'_'+qi]==='ko') sKo++;
+    });
+    doc.setFont('helvetica','normal'); doc.setFontSize(8);
+    doc.setTextColor(80,80,80);
+    doc.text('OK: '+sOk+'  KO: '+sKo, W-M-28, y+5.5);
+    y += 10;
+
+    sec.questions.forEach(function(qText, qi) {
+      if (y > 272) { doc.addPage(); y = 14; }
+      var key = sec.id+'_'+qi;
+      var ans = answers[key];
+      var nota = (notes[key]||'').trim();
+      var noteLines = nota ? doc.splitTextToSize('Motivazione: '+nota, CW-10) : [];
+      var rowH = nota ? Math.max(10, 9 + noteLines.length*4) : 9;
+
+      doc.setFillColor(ans==='ok'?245:ans==='ko'?253:250,
+                       ans==='ok'?251:ans==='ko'?240:250,
+                       ans==='ok'?247:ans==='ko'?239:250);
+      doc.rect(M, y, CW, rowH, 'F');
+
+      doc.setTextColor(26,26,24);
+      doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+      var qLines = doc.splitTextToSize(qText, CW-26);
+      doc.text(qLines, M+3, y+6);
+
+      if (ans==='ok') {
+        doc.setFillColor(26,107,58);
+        doc.roundedRect(W-M-17, y+1.5, 15, 6, 1.5, 1.5, 'F');
+        doc.setTextColor(255,255,255);
+        doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+        doc.text('OK', W-M-9.5, y+6, {align:'center'});
+      } else if (ans==='ko') {
+        doc.setFillColor(192,57,43);
+        doc.roundedRect(W-M-17, y+1.5, 15, 6, 1.5, 1.5, 'F');
+        doc.setTextColor(255,255,255);
+        doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+        doc.text('KO', W-M-9.5, y+6, {align:'center'});
+      }
+
+      if (nota) {
+        doc.setTextColor(150,40,30);
+        doc.setFont('helvetica','italic'); doc.setFontSize(7.5);
+        doc.text(noteLines, M+3, y+10.5);
+      }
+
+      doc.setDrawColor(220,220,215);
+      doc.setLineWidth(0.2);
+      doc.line(M, y+rowH, M+CW, y+rowH);
+      y += rowH+1;
+    });
+    y += 4;
+  });
+
+  // Footer su ogni pagina
+  var pages = doc.getNumberOfPages();
+  for (var i=1; i<=pages; i++) {
+    doc.setPage(i);
+    doc.setFillColor(15,37,64);
+    doc.rect(0,288,W,9,'F');
+    doc.setTextColor(255,255,255);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7);
+    doc.text('Endurance S.p.A. — Audit di Processo', M, 293.5);
+    doc.text('Pag. '+i+'/'+pages+' — '+new Date().toLocaleString('it-IT'), W-M, 293.5, {align:'right'});
+  }
+
+  var fname = 'audit_'+rep.replace(/\s/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.pdf';
+  doc.save(fname);
+
+  // Costruisce il corpo mail con riepilogo completo
+  var mailBody = 'AUDIT DI PROCESSO — ENDURANCE S.p.A.\n';
+  mailBody += 'Data: ' + dateStr + '\n';
+  mailBody += 'Compilatore: ' + comp + '\n';
+  mailBody += 'Reparto: ' + rep + '\n';
+  mailBody += 'Conformità: ' + totalOk + ' OK / ' + totalKo + ' KO (' + pct + '%)\n';
+  mailBody += '\n';
+
+  SECTIONS.forEach(function(sec) {
+    var sOk=0, sKo=0, hasContent=false;
+    sec.questions.forEach(function(_,qi){
+      var k=sec.id+'_'+qi;
+      if(answers[k]==='ok') sOk++;
+      if(answers[k]==='ko') sKo++;
+      hasContent=true;
+    });
+    if(!hasContent) return;
+    mailBody += '── ' + sec.label + ' ── OK:'+sOk+' KO:'+sKo+'\n';
+    sec.questions.forEach(function(qText,qi){
+      var k=sec.id+'_'+qi;
+      var ans=(answers[k]==='ok'?'✓ OK':'✗ KO');
+      mailBody += ans + '  ' + qText + '\n';
+      if(answers[k]==='ko' && notes[k] && notes[k].trim())
+        mailBody += '     Motivazione: ' + notes[k].trim() + '\n';
+    });
+    mailBody += '\n';
+  });
+
+  mailBody += '---\nPDF allegato: ' + fname + '\n';
+  mailBody += 'Generato il ' + new Date().toLocaleString('it-IT');
+
+  var subject = 'Audit di Processo — ' + rep + ' — ' + new Date().toLocaleDateString('it-IT');
+  var mailto = 'mailto:Cosimo.Chionna@endurancespa.com'
+    + '?subject=' + encodeURIComponent(subject)
+    + '&body=' + encodeURIComponent(mailBody);
+
+  // Apre la mail dopo 1 secondo (dà tempo al PDF di scaricarsi)
+  setTimeout(function(){ window.location.href = mailto; }, 1000);
+
+  var banner = document.getElementById('success-banner');
+  banner.innerHTML =
+    '✓ <strong>PDF scaricato.</strong> Tra un momento si apre l\'app mail — allega il PDF e invia.<br>' +
+    '<small style="opacity:0.8">File: ' + fname + '</small>';
+  banner.className = 'success-banner visible';
+  document.getElementById('submit-btn').disabled = true;
+  document.getElementById('submit-btn').textContent = '✓ Report generato';
+}
+
+// Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js').catch(function(e){ console.log('SW:', e); });
+  });
+}
+
+// Nascondi hint install se già installata
+if (window.navigator.standalone) {
+  document.getElementById('install-hint').style.display = 'none';
+}
+</script>
+</body>
+</html>
