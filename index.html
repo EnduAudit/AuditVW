@@ -700,49 +700,10 @@ function generatePDF() {
   var fname = 'audit_'+rep.replace(/\s/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.pdf';
   doc.save(fname);
 
-  // Costruisce il corpo mail con riepilogo completo
-  var mailBody = 'AUDIT DI PROCESSO — ENDURANCE S.p.A.\n';
-  mailBody += 'Data: ' + dateStr + '\n';
-  mailBody += 'Compilatore: ' + comp + '\n';
-  mailBody += 'Reparto: ' + rep + '\n';
-  mailBody += 'Conformità: ' + totalOk + ' OK / ' + totalKo + ' KO (' + pct + '%)\n';
-  mailBody += '\n';
-
-  SECTIONS.forEach(function(sec) {
-    var sOk=0, sKo=0, hasContent=false;
-    sec.questions.forEach(function(_,qi){
-      var k=sec.id+'_'+qi;
-      if(answers[k]==='ok') sOk++;
-      if(answers[k]==='ko') sKo++;
-      hasContent=true;
-    });
-    if(!hasContent) return;
-    mailBody += '── ' + sec.label + ' ── OK:'+sOk+' KO:'+sKo+'\n';
-    sec.questions.forEach(function(qText,qi){
-      var k=sec.id+'_'+qi;
-      var ans=(answers[k]==='ok'?'✓ OK':'✗ KO');
-      mailBody += ans + '  ' + qText + '\n';
-      if(answers[k]==='ko' && notes[k] && notes[k].trim())
-        mailBody += '     Motivazione: ' + notes[k].trim() + '\n';
-    });
-    mailBody += '\n';
-  });
-
-  mailBody += '---\nPDF allegato: ' + fname + '\n';
-  mailBody += 'Generato il ' + new Date().toLocaleString('it-IT');
-
-  var subject = 'Audit di Processo — ' + rep + ' — ' + new Date().toLocaleDateString('it-IT');
-  var mailto = 'mailto:Cosimo.Chionna@endurancespa.com'
-    + '?subject=' + encodeURIComponent(subject)
-    + '&body=' + encodeURIComponent(mailBody);
-
-  // Apre la mail dopo 1 secondo (dà tempo al PDF di scaricarsi)
-  setTimeout(function(){ window.location.href = mailto; }, 1000);
-
   var banner = document.getElementById('success-banner');
   banner.innerHTML =
-    '✓ <strong>PDF scaricato.</strong> Tra un momento si apre l\'app mail — allega il PDF e invia.<br>' +
-    '<small style="opacity:0.8">File: ' + fname + '</small>';
+    '✓ <strong>PDF scaricato:</strong> ' + fname + '<br><br>' +
+    '<button onclick="window.location.reload()" style="width:100%;padding:12px;background:#0f2540;color:#fff;border:none;border-radius:8px;font-size:15px;font-family:IBM Plex Sans,sans-serif;font-weight:500;cursor:pointer;margin-top:4px;">Nuovo audit</button>';
   banner.className = 'success-banner visible';
   document.getElementById('submit-btn').disabled = true;
   document.getElementById('submit-btn').textContent = '✓ Report generato';
