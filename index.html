@@ -24,6 +24,8 @@
   --green-border: #a3d4b2;
   --red-bg: #fdf0ef;
   --red-border: #f0b0a8;
+  --yellow-bg: #fffbe6;
+  --yellow-border: #c8960a;
   --border: #e0e0dc;
   --surface: #f7f6f3;
   --card: #ffffff;
@@ -41,7 +43,6 @@ body {
   padding-bottom: 5rem;
   -webkit-tap-highlight-color: transparent;
 }
-
 .app-header {
   background: var(--navy);
   color: #fff;
@@ -59,272 +60,94 @@ body {
   text-transform: uppercase;
   margin-bottom: 1px;
 }
-.app-header .sub {
-  font-size: 10px;
-  opacity: 0.5;
-  font-family: 'IBM Plex Mono', monospace;
-}
-.progress-bar-wrap {
-  background: var(--navy);
-  padding: 0 1.25rem 0.75rem;
-}
+.app-header .sub { font-size: 10px; opacity: 0.5; font-family: 'IBM Plex Mono', monospace; }
+.progress-bar-wrap { background: var(--navy); padding: 0 1.25rem 0.75rem; }
 .progress-track { height: 3px; background: rgba(255,255,255,0.15); border-radius: 2px; overflow: hidden; }
 .progress-fill { height: 100%; background: #4fc38a; border-radius: 2px; transition: width 0.35s ease; width: 0%; }
 .progress-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.45); margin-top: 3px; }
-
 .wrap { max-width: 680px; margin: 0 auto; padding: 1rem 0.9rem 0; }
-
-.meta-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1.1rem;
-  margin-bottom: 1rem;
-}
+.meta-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem; margin-bottom: 1rem; }
 .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
 .field-group { display: flex; flex-direction: column; gap: 4px; }
-.field-group label {
-  font-size: 9px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--label);
-  font-family: 'IBM Plex Mono', monospace;
+.field-group label { font-size: 9px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--label); font-family: 'IBM Plex Mono', monospace; }
+.field-group input, .field-group select {
+  border: 1px solid var(--border); border-radius: 8px; padding: 9px 11px; font-size: 15px;
+  font-family: 'IBM Plex Sans', sans-serif; background: var(--surface); color: var(--text);
+  -webkit-appearance: none; appearance: none; transition: border-color 0.15s; width: 100%;
 }
-.field-group input,
-.field-group select {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 9px 11px;
-  font-size: 15px;
-  font-family: 'IBM Plex Sans', sans-serif;
-  background: var(--surface);
-  color: var(--text);
-  -webkit-appearance: none;
-  appearance: none;
-  transition: border-color 0.15s;
-  width: 100%;
-}
-.field-group input:focus,
-.field-group select:focus { outline: none; border-color: var(--navy-mid); background: #fff; }
+.field-group input:focus, .field-group select:focus { outline: none; border-color: var(--navy-mid); background: #fff; }
 .select-wrap { position: relative; }
-.select-wrap::after {
-  content: '▾';
-  position: absolute;
-  right: 11px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--subtext);
-  font-size: 12px;
-  pointer-events: none;
-}
-
-.score-strip {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--navy);
-  border-radius: 10px;
-  padding: 0.8rem 1rem;
-  margin-bottom: 1rem;
-  color: #fff;
-}
+.select-wrap::after { content: '\25BE'; position: absolute; right: 11px; top: 50%; transform: translateY(-50%); color: var(--subtext); font-size: 12px; pointer-events: none; }
+.score-strip { display: flex; align-items: center; gap: 10px; background: var(--navy); border-radius: 10px; padding: 0.8rem 1rem; margin-bottom: 1rem; color: #fff; }
 .score-main { font-family: 'IBM Plex Mono', monospace; font-size: 20px; font-weight: 500; min-width: 58px; }
 .score-track { flex: 1; height: 4px; background: rgba(255,255,255,0.15); border-radius: 3px; overflow: hidden; }
 .score-fill { height: 100%; border-radius: 3px; transition: width 0.3s, background-color 0.3s; width: 0%; }
 .score-pct { font-family: 'IBM Plex Mono', monospace; font-size: 12px; opacity: 0.6; min-width: 34px; text-align: right; }
-
 .section-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 0.85rem; overflow: hidden; }
 .section-header { background: var(--navy); padding: 0.6rem 1rem; display: flex; align-items: center; }
 .section-tag { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 500; color: #fff; letter-spacing: 0.08em; }
 .section-count { margin-left: auto; font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.4); }
-
-.question-row {
-  padding: 0.9rem 1rem 0.8rem;
-  border-bottom: 1px solid var(--border);
-  transition: background 0.2s;
-}
+.question-row { padding: 0.9rem 1rem 0.8rem; border-bottom: 1px solid var(--border); transition: background 0.2s; }
 .question-row:last-child { border-bottom: none; }
 .question-row.answered-ok { background: #f4fbf7; }
 .question-row.answered-ko { background: #fef5f4; }
-
+.question-row.answered-na { background: #fffdf0; }
 .q-text { font-size: 14px; line-height: 1.45; color: var(--text); margin-bottom: 9px; }
-
 .btn-group { display: flex; gap: 8px; }
-
-.btn-ok, .btn-ko {
-  flex: 1;
-  padding: 10px 0;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  font-family: 'IBM Plex Mono', monospace;
-  letter-spacing: 0.08em;
-  cursor: pointer;
+.btn-ok, .btn-ko, .btn-na {
+  flex: 1; padding: 10px 0; border-radius: 8px; font-size: 14px; font-weight: 500;
+  font-family: 'IBM Plex Mono', monospace; letter-spacing: 0.08em; cursor: pointer;
   transition: background 0.15s, border-color 0.15s, color 0.15s;
-  border: 2px solid var(--border);
-  background: var(--surface);
-  color: var(--subtext);
-  -webkit-appearance: none;
-  appearance: none;
+  border: 2px solid var(--border); background: var(--surface); color: var(--subtext);
+  -webkit-appearance: none; appearance: none;
 }
-.btn-ok.active {
-  background: var(--green-bg);
-  border-color: var(--green);
-  color: var(--green);
-}
-.btn-ko.active {
-  background: var(--red-bg);
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
+.btn-ok.active { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+.btn-ko.active { background: var(--red-bg); border-color: var(--accent); color: var(--accent); }
+.btn-na.active { background: var(--yellow-bg); border-color: var(--yellow-border); color: #8a6500; }
 .ko-note-wrap { margin-top: 8px; display: none; }
 .ko-note-wrap.visible { display: block; }
+.ko-field { margin-bottom: 6px; }
 .ko-note-label {
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--accent);
-  font-family: 'IBM Plex Mono', monospace;
-  margin-bottom: 4px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  font-size: 9px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--accent);
+  font-family: 'IBM Plex Mono', monospace; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;
 }
-.ko-note-label::before {
-  content: '';
-  display: inline-block;
-  width: 5px; height: 5px;
-  background: var(--accent);
-  border-radius: 50%;
+.ko-note-label::before { content: ''; display: inline-block; width: 5px; height: 5px; background: var(--accent); border-radius: 50%; }
+.ko-note-wrap textarea, .ko-note-wrap input[type=text] {
+  width: 100%; border: 1px solid var(--red-border); border-radius: 8px; padding: 8px 10px;
+  font-size: 14px; font-family: 'IBM Plex Sans', sans-serif; background: #fff; color: var(--text); -webkit-appearance: none;
 }
-.ko-note-wrap textarea {
-  width: 100%;
-  border: 1px solid var(--red-border);
-  border-radius: 8px;
-  padding: 8px 10px;
-  font-size: 14px;
-  font-family: 'IBM Plex Sans', sans-serif;
-  background: #fff;
-  color: var(--text);
-  resize: none;
-  min-height: 68px;
-  -webkit-appearance: none;
-}
-.ko-note-wrap textarea:focus { outline: none; border-color: var(--accent); }
-.ko-note-wrap textarea::placeholder { color: #c8b8b5; }
-
+.ko-note-wrap textarea { resize: none; min-height: 68px; }
+.ko-note-wrap textarea:focus, .ko-note-wrap input[type=text]:focus { outline: none; border-color: var(--accent); }
+.ko-note-wrap textarea::placeholder, .ko-note-wrap input[type=text]::placeholder { color: #c8b8b5; }
+.note-finale-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem; margin-bottom: 1rem; }
+.note-finale-card label { display: block; font-size: 9px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--label); font-family: 'IBM Plex Mono', monospace; margin-bottom: 6px; }
+.note-finale-card textarea { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 9px 11px; font-size: 14px; font-family: 'IBM Plex Sans', sans-serif; background: var(--surface); color: var(--text); resize: none; min-height: 80px; -webkit-appearance: none; }
+.note-finale-card textarea:focus { outline: none; border-color: var(--navy-mid); background: #fff; }
 .submit-wrap {
-  position: fixed;
-  bottom: 0;
-  left: 0; right: 0;
-  background: rgba(247,246,243,0.95);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  padding: 0.75rem 0.9rem;
-  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
-  border-top: 1px solid var(--border);
-  z-index: 50;
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(247,246,243,0.95); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  padding: 0.75rem 0.9rem; padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border); z-index: 50;
 }
 .submit-inner { max-width: 680px; margin: 0 auto; }
-.submit-btn {
-  width: 100%;
-  padding: 14px;
-  background: var(--navy);
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  font-size: 15px;
-  font-weight: 500;
-  font-family: 'IBM Plex Sans', sans-serif;
-  cursor: pointer;
-  transition: opacity 0.2s;
-  -webkit-appearance: none;
-}
+.submit-btn { width: 100%; padding: 14px; background: var(--navy); color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 500; font-family: 'IBM Plex Sans', sans-serif; cursor: pointer; transition: opacity 0.2s; -webkit-appearance: none; }
 .submit-btn:active { opacity: 0.8; }
 .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-.modal-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(15,37,64,0.6);
-  z-index: 999;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 1rem;
-  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
-}
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,37,64,0.6); z-index: 999; align-items: flex-end; justify-content: center; padding: 1rem; padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px)); }
 .modal-overlay.open { display: flex; }
 .modal { background: var(--card); border-radius: 16px; padding: 1.4rem; width: 100%; max-width: 480px; }
 .modal h2 { font-size: 16px; font-weight: 500; margin-bottom: 0.4rem; }
-.modal-summary {
-  background: var(--surface);
-  border-radius: 8px;
-  padding: 0.8rem 0.9rem;
-  margin: 0.75rem 0 1rem;
-  font-size: 13px;
-  line-height: 1.65;
-  color: var(--subtext);
-  font-family: 'IBM Plex Mono', monospace;
-}
+.modal-summary { background: var(--surface); border-radius: 8px; padding: 0.8rem 0.9rem; margin: 0.75rem 0 1rem; font-size: 13px; line-height: 1.65; color: var(--subtext); font-family: 'IBM Plex Mono', monospace; }
 .modal-summary strong { color: var(--text); }
 .modal-actions { display: flex; gap: 8px; }
-.modal-btn {
-  flex: 1; padding: 11px;
-  border-radius: 9px;
-  font-size: 14px; font-weight: 500;
-  cursor: pointer;
-  font-family: 'IBM Plex Sans', sans-serif;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text);
-}
+.modal-btn { flex: 1; padding: 11px; border-radius: 9px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: 'IBM Plex Sans', sans-serif; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
 .modal-btn.primary { background: var(--navy); color: #fff; border-color: var(--navy); }
-
-.success-banner {
-  display: none;
-  background: var(--green-bg);
-  border: 1px solid var(--green-border);
-  border-radius: 10px;
-  padding: 0.9rem 1rem;
-  margin: 0.75rem 0;
-  font-size: 13px;
-  color: var(--green);
-  line-height: 1.5;
-}
+.success-banner { display: none; background: var(--green-bg); border: 1px solid var(--green-border); border-radius: 10px; padding: 0.9rem 1rem; margin: 0.75rem 0; font-size: 13px; color: var(--green); line-height: 1.5; }
 .success-banner.visible { display: block; }
-
-.install-hint {
-  background: #fff8e6;
-  border: 1px solid #f5d78a;
-  border-radius: 10px;
-  padding: 0.8rem 1rem;
-  margin-bottom: 1rem;
-  font-size: 12px;
-  color: #7a5c00;
-  line-height: 1.5;
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
-}
+.install-hint { background: #fff8e6; border: 1px solid #f5d78a; border-radius: 10px; padding: 0.8rem 1rem; margin-bottom: 1rem; font-size: 12px; color: #7a5c00; line-height: 1.5; display: flex; gap: 8px; align-items: flex-start; }
 .install-hint-icon { font-size: 18px; flex-shrink: 0; margin-top: -1px; }
-.install-hint button {
-  margin-top: 6px;
-  font-size: 11px;
-  background: none;
-  border: none;
-  color: #7a5c00;
-  text-decoration: underline;
-  cursor: pointer;
-  padding: 0;
-  font-family: 'IBM Plex Sans', sans-serif;
-}
-
-@media (max-width: 380px) {
-  .meta-grid { grid-template-columns: 1fr; }
-}
+.install-hint button { margin-top: 6px; font-size: 11px; background: none; border: none; color: #7a5c00; text-decoration: underline; cursor: pointer; padding: 0; font-family: 'IBM Plex Sans', sans-serif; }
+@media (max-width: 380px) { .meta-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -339,9 +162,8 @@ body {
 </div>
 
 <div class="wrap">
-
   <div class="install-hint" id="install-hint">
-    <span class="install-hint-icon">📲</span>
+    <span class="install-hint-icon">&#128242;</span>
     <div>
       <strong>Installa come app:</strong> tocca <strong>Condividi</strong> in Safari, poi <strong>"Aggiungi a schermata Home"</strong> per usarla offline come un'app vera.
       <br><button onclick="document.getElementById('install-hint').style.display='none'">Chiudi</button>
@@ -370,12 +192,17 @@ body {
   <div class="score-strip">
     <div class="score-main" id="score-num">0 / 0</div>
     <div class="score-track"><div class="score-fill" id="score-fill"></div></div>
-    <div class="score-pct" id="score-pct">—</div>
+    <div class="score-pct" id="score-pct">&#8212;</div>
   </div>
 
   <div id="form-body"></div>
-  <div class="success-banner" id="success-banner"></div>
 
+  <div class="note-finale-card">
+    <label>Note generali (opzionale)</label>
+    <textarea id="note-generali" placeholder="Eventuali osservazioni, note aggiuntive..."></textarea>
+  </div>
+
+  <div class="success-banner" id="success-banner"></div>
 </div>
 
 <div class="submit-wrap">
@@ -396,6 +223,8 @@ body {
 </div>
 
 <script>
+var LOGO_B64 = 'data:image/jpeg;base64,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';
+
 var SECTIONS = [
   { id:'M10', label:'M10', questions:[
     'Formazione operatore + verifica conoscenza metodo di lavoro',
@@ -420,18 +249,14 @@ var SECTIONS = [
     'Esatta compilazione registro bave OP90',
     'Formazione operatore + verifica conoscenza metodo di lavoro'
   ]},
-  { id:'OP110', label:'OP110 – OP112', questions:[
+  { id:'OP110', label:'OP110 - OP112', questions:[
     'Funzionamento controlli apertura canali olio index',
     'Funzionamento controlli apertura canali olio tavola 1',
     'Presenza calibro a corsoio + comparatore',
     'Esatta compilazione registro quota tappo/sfera'
   ]},
-  { id:'OP115', label:'OP 115', questions:[
-    'Funzionamento postazione'
-  ]},
-  { id:'OP116', label:'OP 116', questions:[
-    'Funzionamento postazione'
-  ]},
+  { id:'OP115', label:'OP 115', questions:['Funzionamento postazione']},
+  { id:'OP116', label:'OP 116', questions:['Funzionamento postazione']},
   { id:'OP120', label:'OP120', questions:[
     'Compilazione registro pz scarto PT',
     'Passaggio pezzi trappola'
@@ -466,9 +291,9 @@ var SECTIONS = [
 
 var answers = {};
 var notes = {};
+var responsabili = {};
 var TOTAL = 0;
 
-// Build UI
 (function() {
   var body = document.getElementById('form-body');
   SECTIONS.forEach(function(sec) {
@@ -479,15 +304,20 @@ var TOTAL = 0;
     var rows = '';
     sec.questions.forEach(function(q, qi) {
       var k = sec.id + '_' + qi;
+      var sl = sec.questions.length;
+      var sid = sec.id;
       rows += '<div class="question-row" id="row-' + k + '">' +
         '<div class="q-text">' + q + '</div>' +
         '<div class="btn-group">' +
-          '<button class="btn-ok" id="ok-' + k + '" onclick="setAnswer(\'' + k + '\',\'ok\',\'' + sec.id + '\',' + sec.questions.length + ')">OK</button>' +
-          '<button class="btn-ko" id="ko-' + k + '" onclick="setAnswer(\'' + k + '\',\'ko\',\'' + sec.id + '\',' + sec.questions.length + ')">KO</button>' +
+          '<button class="btn-ok" id="ok-' + k + '" onclick="setAnswer(&quot;' + k + '&quot;,&quot;ok&quot;,&quot;' + sid + '&quot;,' + sl + ')">OK</button>' +
+          '<button class="btn-ko" id="ko-' + k + '" onclick="setAnswer(&quot;' + k + '&quot;,&quot;ko&quot;,&quot;' + sid + '&quot;,' + sl + ')">KO</button>' +
+          '<button class="btn-na" id="na-' + k + '" onclick="setAnswer(&quot;' + k + '&quot;,&quot;na&quot;,&quot;' + sid + '&quot;,' + sl + ')">N.A.</button>' +
         '</div>' +
         '<div class="ko-note-wrap" id="note-wrap-' + k + '">' +
-          '<div class="ko-note-label">Motivazione obbligatoria</div>' +
-          '<textarea id="note-' + k + '" placeholder="Descrivi il problema..." oninput="notes[\'' + k + '\']=this.value"></textarea>' +
+          '<div class="ko-field"><div class="ko-note-label">Motivazione obbligatoria</div>' +
+          '<textarea id="note-' + k + '" placeholder="Descrivi il problema..."></textarea></div>' +
+          '<div class="ko-field"><div class="ko-note-label">Responsabile azione correttiva</div>' +
+          '<input type="text" id="resp-' + k + '" placeholder="Nome responsabile" /></div>' +
         '</div>' +
       '</div>';
     });
@@ -498,33 +328,35 @@ var TOTAL = 0;
   document.getElementById('score-num').textContent = '0 / ' + TOTAL;
 })();
 
+// Aggiungo listener oninput dopo la creazione del DOM
+SECTIONS.forEach(function(sec) {
+  sec.questions.forEach(function(_, qi) {
+    var k = sec.id + '_' + qi;
+    var noteEl = document.getElementById('note-' + k);
+    var respEl = document.getElementById('resp-' + k);
+    if (noteEl) noteEl.addEventListener('input', function(){ notes[k] = this.value; });
+    if (respEl) respEl.addEventListener('input', function(){ responsabili[k] = this.value; });
+  });
+});
+
 document.getElementById('date-display').textContent =
   new Date().toLocaleDateString('it-IT',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 
 function setAnswer(key, val, secId, secLen) {
   answers[key] = val;
-
-  var okBtn = document.getElementById('ok-' + key);
-  var koBtn = document.getElementById('ko-' + key);
-
-  // Reset entrambi, poi attiva il selezionato
-  okBtn.className = 'btn-ok' + (val === 'ok' ? ' active' : '');
-  koBtn.className = 'btn-ko' + (val === 'ko' ? ' active' : '');
-
-  // Colora riga
-  var row = document.getElementById('row-' + key);
-  row.className = 'question-row answered-' + val;
-
-  // Note KO
-  var nw = document.getElementById('note-wrap-' + key);
+  document.getElementById('ok-'+key).className = 'btn-ok' + (val==='ok'?' active':'');
+  document.getElementById('ko-'+key).className = 'btn-ko' + (val==='ko'?' active':'');
+  document.getElementById('na-'+key).className = 'btn-na' + (val==='na'?' active':'');
+  document.getElementById('row-'+key).className = 'question-row answered-' + val;
+  var nw = document.getElementById('note-wrap-'+key);
   if (val === 'ko') {
     nw.className = 'ko-note-wrap visible';
-    setTimeout(function(){ document.getElementById('note-' + key).focus(); }, 150);
+    setTimeout(function(){ document.getElementById('note-'+key).focus(); }, 150);
   } else {
     nw.className = 'ko-note-wrap';
     notes[key] = '';
+    responsabili[key] = '';
   }
-
   updateScore(secId, secLen);
 }
 
@@ -533,192 +365,200 @@ function updateScore(secId, secLen) {
   var totalOk = 0;
   Object.values(answers).forEach(function(v){ if(v==='ok') totalOk++; });
   var pct = totalAnswered > 0 ? Math.round(totalOk / TOTAL * 100) : 0;
-
   document.getElementById('score-num').textContent = totalOk + ' / ' + TOTAL;
-  document.getElementById('score-pct').textContent = totalAnswered > 0 ? pct + '%' : '—';
+  document.getElementById('score-pct').textContent = totalAnswered > 0 ? pct + '%' : '\u2014';
   var sf = document.getElementById('score-fill');
   sf.style.width = pct + '%';
-  sf.style.backgroundColor = pct >= 80 ? '#4fc38a' : pct >= 50 ? '#f0a500' : '#e05c4e';
-
+  sf.style.backgroundColor = pct>=80?'#4fc38a':pct>=50?'#f0a500':'#e05c4e';
   var pf = document.getElementById('progress-fill');
-  pf.style.width = Math.round(totalAnswered / TOTAL * 100) + '%';
-  document.getElementById('progress-label').textContent = totalAnswered + ' / ' + TOTAL + ' domande compilate';
-
+  pf.style.width = Math.round(totalAnswered/TOTAL*100)+'%';
+  document.getElementById('progress-label').textContent = totalAnswered+' / '+TOTAL+' domande compilate';
   if (secId) {
-    var sa = 0;
-    SECTIONS.forEach(function(sec) {
-      if (sec.id !== secId) return;
-      sec.questions.forEach(function(_, qi){ if(answers[secId+'_'+qi]) sa++; });
-    });
-    document.getElementById('cnt-' + secId).textContent = sa + ' / ' + secLen;
+    var sa=0;
+    SECTIONS.forEach(function(sec){ if(sec.id!==secId) return; sec.questions.forEach(function(_,qi){ if(answers[secId+'_'+qi]) sa++; }); });
+    document.getElementById('cnt-'+secId).textContent = sa+' / '+secLen;
   }
 }
 
 function handleSubmit() {
   var comp = document.getElementById('compilatore').value.trim();
   var rep = document.getElementById('reparto').value;
-  if (!comp || !rep) { alert('Inserisci nome compilatore e reparto.'); return; }
-
-  var missing = 0;
-  SECTIONS.forEach(function(sec){ sec.questions.forEach(function(_, qi){ if(!answers[sec.id+'_'+qi]) missing++; }); });
-  if (missing > 0) { alert('Attenzione: ' + missing + ' domande senza risposta.'); return; }
-
-  var missingNotes = [];
+  if (!comp||!rep) { alert('Inserisci nome compilatore e reparto.'); return; }
+  var missing=0;
+  SECTIONS.forEach(function(sec){ sec.questions.forEach(function(_,qi){ if(!answers[sec.id+'_'+qi]) missing++; }); });
+  if (missing>0) { alert('Attenzione: '+missing+' domande senza risposta.'); return; }
+  var missingNotes=[];
   SECTIONS.forEach(function(sec){
-    sec.questions.forEach(function(q, qi){
-      var k = sec.id+'_'+qi;
-      if(answers[k]==='ko' && (!notes[k]||!notes[k].trim()))
-        missingNotes.push(sec.label + ': ' + q.substring(0,45) + '…');
+    sec.questions.forEach(function(q,qi){
+      var k=sec.id+'_'+qi;
+      if(answers[k]==='ko'&&(!notes[k]||!notes[k].trim()))
+        missingNotes.push(sec.label+': '+q.substring(0,45)+'...');
     });
   });
-  if (missingNotes.length > 0) { alert('Motivazione mancante per:\n\n' + missingNotes.join('\n')); return; }
-
-  var totalOk = Object.values(answers).filter(function(v){return v==='ok';}).length;
-  var totalKo = Object.values(answers).filter(function(v){return v==='ko';}).length;
-  var pct = Math.round(totalOk / TOTAL * 100);
-  var dateStr = new Date().toLocaleDateString('it-IT',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-
+  if (missingNotes.length>0) { alert('Motivazione mancante per:\n\n'+missingNotes.join('\n')); return; }
+  var totalOk=Object.values(answers).filter(function(v){return v==='ok';}).length;
+  var totalKo=Object.values(answers).filter(function(v){return v==='ko';}).length;
+  var totalNa=Object.values(answers).filter(function(v){return v==='na';}).length;
+  var pct=Math.round(totalOk/TOTAL*100);
+  var dateStr=new Date().toLocaleDateString('it-IT',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   document.getElementById('modal-summary').innerHTML =
-    '<strong>' + comp + '</strong> — ' + rep + '<br>' +
-    dateStr + '<br><br>' +
-    'OK: <strong>' + totalOk + '</strong> &nbsp;|&nbsp; KO: <strong>' + totalKo + '</strong> &nbsp;|&nbsp; Conformità: <strong>' + pct + '%</strong>';
+    '<strong>'+comp+'</strong> &#8212; '+rep+'<br>'+dateStr+'<br><br>'+
+    'OK: <strong>'+totalOk+'</strong> &nbsp;|&nbsp; KO: <strong>'+totalKo+'</strong> &nbsp;|&nbsp; N.A.: <strong>'+totalNa+'</strong> &nbsp;|&nbsp; Conformit&#224;: <strong>'+pct+'%</strong>';
   document.getElementById('modal').classList.add('open');
 }
 
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
-
 function confirmSubmit() { closeModal(); generatePDF(); }
 
 function generatePDF() {
   var comp    = document.getElementById('compilatore').value.trim();
   var rep     = document.getElementById('reparto').value;
   var dateStr = new Date().toLocaleDateString('it-IT',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  var noteGen = document.getElementById('note-generali').value.trim();
   var totalOk = Object.values(answers).filter(function(v){return v==='ok';}).length;
   var totalKo = Object.values(answers).filter(function(v){return v==='ko';}).length;
-  var pct     = Math.round(totalOk / TOTAL * 100);
+  var totalNa = Object.values(answers).filter(function(v){return v==='na';}).length;
+  var pct     = Math.round(totalOk/TOTAL*100);
 
   var doc = new jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-  var W = 210, M = 14, CW = W - M * 2;
+  var W=210, M=14, CW=W-M*2;
 
-  // Header
+  // Header con logo
   doc.setFillColor(15,37,64);
-  doc.rect(0,0,W,32,'F');
+  doc.rect(0,0,W,34,'F');
+  // Logo a destra
+  try { doc.addImage(LOGO_B64,'JPEG',W-52,4,38,18); } catch(e){}
+  // Testi header
   doc.setTextColor(255,255,255);
   doc.setFont('helvetica','bold'); doc.setFontSize(15);
   doc.text('AUDIT DI PROCESSO', M, 13);
   doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
-  doc.text('Endurance S.p.A.   |   ' + dateStr, M, 20);
-  doc.text('Compilatore: ' + comp + '   |   Reparto: ' + rep, M, 27);
+  doc.text('Endurance S.p.A.   |   '+dateStr, M, 20);
+  doc.text('Compilatore: '+comp+'   |   Reparto: '+rep, M, 27);
 
   // Score box
-  var sc = pct>=80?[26,107,58]:pct>=50?[176,109,0]:[192,57,43];
+  var sc=pct>=80?[26,107,58]:pct>=50?[176,109,0]:[192,57,43];
   doc.setFillColor(sc[0],sc[1],sc[2]);
-  doc.roundedRect(M,36,CW,11,3,3,'F');
+  doc.roundedRect(M,38,CW,11,3,3,'F');
   doc.setTextColor(255,255,255);
   doc.setFont('helvetica','bold'); doc.setFontSize(10);
-  doc.text('Conformità: ' + totalOk + ' OK / ' + totalKo + ' KO  (' + pct + '%)', M+5, 43.5);
+  doc.text('Conformita: '+totalOk+' OK / '+totalKo+' KO / '+totalNa+' N.A.  ('+pct+'%)', M+5, 45.5);
 
-  var y = 53;
+  var y=55;
 
   SECTIONS.forEach(function(sec) {
-    if (y > 265) { doc.addPage(); y = 14; }
-
+    if(y>265){doc.addPage();y=14;}
     doc.setFillColor(224,228,234);
-    doc.rect(M, y, CW, 8, 'F');
+    doc.rect(M,y,CW,8,'F');
     doc.setTextColor(15,37,64);
     doc.setFont('helvetica','bold'); doc.setFontSize(9);
     doc.text(sec.label, M+3, y+5.5);
-
-    var sOk=0, sKo=0;
+    var sOk=0,sKo=0,sNa=0;
     sec.questions.forEach(function(_,qi){
-      if(answers[sec.id+'_'+qi]==='ok') sOk++;
-      else if(answers[sec.id+'_'+qi]==='ko') sKo++;
+      var a=answers[sec.id+'_'+qi];
+      if(a==='ok') sOk++; else if(a==='ko') sKo++; else if(a==='na') sNa++;
     });
     doc.setFont('helvetica','normal'); doc.setFontSize(8);
     doc.setTextColor(80,80,80);
-    doc.text('OK: '+sOk+'  KO: '+sKo, W-M-28, y+5.5);
-    y += 10;
+    doc.text('OK:'+sOk+' KO:'+sKo+' N.A.:'+sNa, W-M-36, y+5.5);
+    y+=10;
 
-    sec.questions.forEach(function(qText, qi) {
-      if (y > 272) { doc.addPage(); y = 14; }
-      var key = sec.id+'_'+qi;
-      var ans = answers[key];
-      var nota = (notes[key]||'').trim();
-      var noteLines = nota ? doc.splitTextToSize('Motivazione: '+nota, CW-10) : [];
-      var rowH = nota ? Math.max(10, 9 + noteLines.length*4) : 9;
+    sec.questions.forEach(function(qText,qi){
+      if(y>272){doc.addPage();y=14;}
+      var key=sec.id+'_'+qi;
+      var ans=answers[key];
+      var nota=(notes[key]||'').trim();
+      var resp=(responsabili[key]||'').trim();
+      var noteLines=nota?doc.splitTextToSize('Motivazione: '+nota, CW-10):[];
+      var respLines=resp?doc.splitTextToSize('Responsabile: '+resp, CW-10):[];
+      var extraH=(noteLines.length*4)+(respLines.length*4);
+      var rowH=nota||resp?Math.max(11,10+extraH):9;
 
-      doc.setFillColor(ans==='ok'?245:ans==='ko'?253:250,
-                       ans==='ok'?251:ans==='ko'?240:250,
-                       ans==='ok'?247:ans==='ko'?239:250);
-      doc.rect(M, y, CW, rowH, 'F');
+      var bgR=ans==='ok'?245:ans==='ko'?253:ans==='na'?255:250;
+      var bgG=ans==='ok'?251:ans==='ko'?240:ans==='na'?251:250;
+      var bgB=ans==='ok'?247:ans==='ko'?239:ans==='na'?220:250;
+      doc.setFillColor(bgR,bgG,bgB);
+      doc.rect(M,y,CW,rowH,'F');
 
       doc.setTextColor(26,26,24);
       doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
-      var qLines = doc.splitTextToSize(qText, CW-26);
-      doc.text(qLines, M+3, y+6);
+      var qLines=doc.splitTextToSize(qText,CW-26);
+      doc.text(qLines,M+3,y+6);
 
-      if (ans==='ok') {
-        doc.setFillColor(26,107,58);
-        doc.roundedRect(W-M-17, y+1.5, 15, 6, 1.5, 1.5, 'F');
-        doc.setTextColor(255,255,255);
-        doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
-        doc.text('OK', W-M-9.5, y+6, {align:'center'});
-      } else if (ans==='ko') {
-        doc.setFillColor(192,57,43);
-        doc.roundedRect(W-M-17, y+1.5, 15, 6, 1.5, 1.5, 'F');
-        doc.setTextColor(255,255,255);
-        doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
-        doc.text('KO', W-M-9.5, y+6, {align:'center'});
+      if(ans==='ok'){
+        doc.setFillColor(26,107,58); doc.roundedRect(W-M-17,y+1.5,15,6,1.5,1.5,'F');
+        doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+        doc.text('OK',W-M-9.5,y+6,{align:'center'});
+      } else if(ans==='ko'){
+        doc.setFillColor(192,57,43); doc.roundedRect(W-M-17,y+1.5,15,6,1.5,1.5,'F');
+        doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+        doc.text('KO',W-M-9.5,y+6,{align:'center'});
+      } else if(ans==='na'){
+        doc.setFillColor(200,150,10); doc.roundedRect(W-M-17,y+1.5,15,6,1.5,1.5,'F');
+        doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+        doc.text('N.A.',W-M-9.5,y+6,{align:'center'});
       }
 
-      if (nota) {
-        doc.setTextColor(150,40,30);
-        doc.setFont('helvetica','italic'); doc.setFontSize(7.5);
-        doc.text(noteLines, M+3, y+10.5);
+      var extraY=y+10.5;
+      if(nota){
+        doc.setTextColor(150,40,30); doc.setFont('helvetica','italic'); doc.setFontSize(7.5);
+        doc.text(noteLines,M+3,extraY); extraY+=noteLines.length*4;
+      }
+      if(resp){
+        doc.setTextColor(30,60,120); doc.setFont('helvetica','italic'); doc.setFontSize(7.5);
+        doc.text(respLines,M+3,extraY);
       }
 
-      doc.setDrawColor(220,220,215);
-      doc.setLineWidth(0.2);
-      doc.line(M, y+rowH, M+CW, y+rowH);
-      y += rowH+1;
+      doc.setDrawColor(220,220,215); doc.setLineWidth(0.2);
+      doc.line(M,y+rowH,M+CW,y+rowH);
+      y+=rowH+1;
     });
-    y += 4;
+    y+=4;
   });
 
-  // Footer su ogni pagina
-  var pages = doc.getNumberOfPages();
-  for (var i=1; i<=pages; i++) {
+  // Note generali
+  if(noteGen){
+    if(y>255){doc.addPage();y=14;}
+    doc.setFillColor(240,240,235);
+    var ngLines=doc.splitTextToSize(noteGen,CW-6);
+    var ngH=Math.max(12,8+ngLines.length*5);
+    doc.rect(M,y,CW,ngH,'F');
+    doc.setTextColor(15,37,64); doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
+    doc.text('Note generali:', M+3, y+6);
+    doc.setFont('helvetica','normal'); doc.setTextColor(26,26,24);
+    doc.text(ngLines,M+3,y+11);
+    y+=ngH+4;
+  }
+
+  // Footer
+  var pages=doc.getNumberOfPages();
+  for(var i=1;i<=pages;i++){
     doc.setPage(i);
     doc.setFillColor(15,37,64);
     doc.rect(0,288,W,9,'F');
-    doc.setTextColor(255,255,255);
-    doc.setFont('helvetica','normal'); doc.setFontSize(7);
+    doc.setTextColor(255,255,255); doc.setFont('helvetica','normal'); doc.setFontSize(7);
     doc.text('Endurance S.p.A. — Audit di Processo', M, 293.5);
     doc.text('Pag. '+i+'/'+pages+' — '+new Date().toLocaleString('it-IT'), W-M, 293.5, {align:'right'});
   }
 
-  var fname = 'audit_'+rep.replace(/\s/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.pdf';
+  var fname='audit_'+rep.replace(/\s/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.pdf';
   doc.save(fname);
 
-  var banner = document.getElementById('success-banner');
-  banner.innerHTML =
-    '✓ <strong>PDF scaricato:</strong> ' + fname + '<br><br>' +
+  var banner=document.getElementById('success-banner');
+  banner.innerHTML='&#10003; <strong>PDF scaricato:</strong> '+fname+'<br><br>'+
     '<button onclick="window.location.reload()" style="width:100%;padding:12px;background:#0f2540;color:#fff;border:none;border-radius:8px;font-size:15px;font-family:IBM Plex Sans,sans-serif;font-weight:500;cursor:pointer;margin-top:4px;">Nuovo audit</button>';
-  banner.className = 'success-banner visible';
-  document.getElementById('submit-btn').disabled = true;
-  document.getElementById('submit-btn').textContent = '✓ Report generato';
+  banner.className='success-banner visible';
+  document.getElementById('submit-btn').disabled=true;
+  document.getElementById('submit-btn').textContent='&#10003; Report generato';
 }
 
-// Service Worker
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('./sw.js').catch(function(e){ console.log('SW:', e); });
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('./sw.js').catch(function(e){console.log('SW:',e);});
   });
 }
-
-// Nascondi hint install se già installata
-if (window.navigator.standalone) {
-  document.getElementById('install-hint').style.display = 'none';
+if(window.navigator.standalone){
+  document.getElementById('install-hint').style.display='none';
 }
 </script>
 </body>
